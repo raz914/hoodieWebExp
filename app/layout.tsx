@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import AirplaneWindowBg from '@/components/airplane-window-bg'
 import { SectionProvider } from '@/contexts/section-context'
+import { OverlayProvider } from '@/contexts/overlay-context'
 import LoadingScreen from '@/components/loading-screen'
 
 export const metadata: Metadata = {
@@ -19,9 +20,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <SectionProvider>
-          <LoadingScreen />
-          <AirplaneWindowBg />
-          {children}
+          <OverlayProvider>
+            <LoadingScreen />
+            <AirplaneWindowBg />
+            {children}
+          </OverlayProvider>
         </SectionProvider>
       </body>
     </html>

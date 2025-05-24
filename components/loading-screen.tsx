@@ -3,31 +3,63 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSection } from "@/contexts/section-context"
+import ModelLoader from "./model-loader"
 
-const airlineFacts = [
-  "Some airlines charge up to $65 for a carry-on bag that doesn't fit under the seat.",
-  "Budget airlines earn about 40% of their revenue from add-on fees, including baggage charges.",
-  "Passengers paid over $5 billion in baggage fees to U.S. airlines in 2022 alone.",
-  "Some airlines charge more for baggage at the gate than during online check-in - sometimes double the price.",
-  "The weight limit for checked luggage decreased from 70 pounds to 50 pounds over the years, resulting in more fees."
+// Use the same facts as in hero-section
+const facts = [
+  // {
+  //   intro: "We heard you like to travel",
+  //   heading: "So we invented a travel jacket that saves you up to $100 everytime you fly!"
+  // },
+  {
+    intro: "Did you know?",
+    heading: "Some airlines charge up to $65 for a carry-on bag that doesn't fit under the seat"
+  },
+  {
+    intro: "Travel smart",
+    heading: "Our jacket has 10+ hidden pockets designed to carry all your essentials"
+  },
+  {
+    intro: "No more baggage fees",
+    heading: "Save money on every flight by keeping your valuables with you, not in checked luggage"
+  }
 ]
 
 export default function LoadingScreen() {
   const { isLoading, setIsLoading } = useSection()
   const [factIndex, setFactIndex] = useState(0)
+  const [modelsReady, setModelsReady] = useState(false)
   
   useEffect(() => {
     // Check if document and window objects are available (browser environment)
     if (typeof window !== 'undefined') {
       // Start fact rotation interval
       const factInterval = setInterval(() => {
-        setFactIndex(prev => (prev + 1) % airlineFacts.length)
+        setFactIndex(prev => (prev + 1) % facts.length)
       }, 3500)
+
+      // Check for 3D models loading status
+      const checkModelsInterval = setInterval(() => {
+        if (window.MODELS_LOADED) {
+          setModelsReady(true)
+          clearInterval(checkModelsInterval)
+        }
+      }, 100)
 
       // Check when page is fully loaded
       const handleLoad = () => {
-        // Add a slight delay for smoother transition
-        setTimeout(() => setIsLoading(false), 2500)
+        // Wait for both page load and models to be ready before hiding loading screen
+        const checkComplete = () => {
+          if (modelsReady) {
+            // Add a slight delay for smoother transition
+            setTimeout(() => setIsLoading(false), 1000)
+          } else {
+            // Check again in a moment
+            setTimeout(checkComplete, 100)
+          }
+        }
+        
+        checkComplete()
       }
 
       // Listen for window load event
@@ -40,10 +72,11 @@ export default function LoadingScreen() {
       // Clean up
       return () => {
         clearInterval(factInterval)
+        clearInterval(checkModelsInterval)
         window.removeEventListener('load', handleLoad)
       }
     }
-  }, [setIsLoading])
+  }, [setIsLoading, modelsReady])
 
   return (
     <AnimatePresence>
@@ -54,6 +87,9 @@ export default function LoadingScreen() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Invisible component that handles model preloading */}
+          <ModelLoader />
+          
           <motion.div 
             className="relative"
             animate={{ rotate: 360 }}
@@ -79,17 +115,21 @@ export default function LoadingScreen() {
           >
             <p className="text-xl font-bold mb-2">Loading TravelHoodie Experience</p>
             <AnimatePresence mode="wait">
-              <motion.p
+              <motion.div
                 key={factIndex}
-                className="text-sm opacity-80"
+                className="text-sm"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.5 }}
               >
-                <span className="text-purple-300 font-medium">Did you know? </span> 
-                {airlineFacts[factIndex]}
-              </motion.p>
+                <p className="text-purple-300 font-medium mb-1">
+                  {facts[factIndex].intro}
+                </p>
+                <p className="opacity-90">
+                  {facts[factIndex].heading}
+                </p>
+              </motion.div>
             </AnimatePresence>
           </motion.div>
         </motion.div>

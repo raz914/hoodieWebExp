@@ -13,8 +13,8 @@ export default function Navbar() {
   const isMobile = useMobile()
   const { currentSection, isLoading } = useSection()
   
-  // Determine if we should use white text based on the current section
-  const useWhiteText = currentSection === 'hero' || currentSection === 'contact'
+  // Always use white text regardless of section
+  const useWhiteText = true
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +27,18 @@ export default function Navbar() {
       return () => window.removeEventListener("scroll", handleScroll)
     }
   }, [])
+
+  // Close mobile menu when resizing to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isOpen) {
+        setIsOpen(false)
+      }
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [isOpen])
 
   const menuItems = [
     { name: "Home", href: "#hero" },
@@ -43,33 +55,35 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 w-full z-50 transition-all duration-300 px-6 py-4",
+        "fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 sm:px-6 py-3 sm:py-4",
         scrolled ? "bg-white/30 backdrop-blur-md shadow-sm" : "bg-transparent",
-        useWhiteText && !scrolled ? "text-white" : "text-gray-900"
+        "text-white" // Always use white text
       )}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="#" className={cn("text-xl font-bold", 
-          useWhiteText && !scrolled ? "text-white" : "")}>
+        <Link href="#" className="text-lg sm:text-xl font-bold text-white">
           TravelHoodie
         </Link>
 
         {isMobile ? (
           <>
-            <button onClick={() => setIsOpen(!isOpen)} className={cn("p-2 focus:outline-none",
-              useWhiteText && !scrolled ? "text-white" : "")}>
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="p-2 focus:outline-none text-white"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             {isOpen && (
-              <div className="fixed inset-0 top-16 bg-white/80 backdrop-blur-lg z-40 p-6">
-                <ul className="flex flex-col gap-6">
+              <div className="fixed inset-0 top-14 bg-black/90 backdrop-blur-lg z-40 flex flex-col justify-start pt-8">
+                <ul className="flex flex-col gap-6 px-6">
                   {menuItems.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="text-lg font-medium hover:text-gray-600"
+                        className="text-lg font-medium text-white hover:text-gray-200 block py-2"
                       >
                         {item.name}
                       </Link>
@@ -80,17 +94,12 @@ export default function Navbar() {
             )}
           </>
         ) : (
-          <ul className="flex gap-8">
+          <ul className="flex gap-6 md:gap-8">
             {menuItems.map((item) => (
               <li key={item.name}>
                 <Link 
                   href={item.href} 
-                  className={cn(
-                    "font-medium transition-colors",
-                    useWhiteText && !scrolled 
-                      ? "text-white hover:text-gray-200" 
-                      : "hover:text-gray-600"
-                  )}
+                  className="font-medium transition-colors text-white hover:text-gray-200"
                 >
                   {item.name}
                 </Link>

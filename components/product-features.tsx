@@ -196,7 +196,7 @@ export default function ProductFeatures() {
 
   return (
     <div ref={sectionRef} className="w-full max-w-[1600px] mx-auto h-full flex flex-col justify-center items-center">
-      <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-16">Product Features</h2>
+      <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-16 text-white">Product Features</h2>
 
       <div 
         ref={containerRef} 
@@ -221,8 +221,8 @@ export default function ProductFeatures() {
                 key={feature.id}
                 className="p-6 rounded-lg"
               >
-                <h3 className="text-2xl md:text-4xl font-bold mb-4">{feature.title}</h3>
-                <p className="text-lg md:text-xl">{feature.description}</p>
+                <h3 className="text-2xl md:text-4xl font-bold mb-4 text-white">{feature.title}</h3>
+                <p className="text-lg md:text-xl text-white">{feature.description}</p>
               </motion.div>
             </div>
 
@@ -250,7 +250,7 @@ export default function ProductFeatures() {
 
         {/* Feature indicator */}
         <div className="absolute bottom-8 left-8 z-10">
-          <span className="font-mono text-sm">
+          <span className="font-mono text-sm text-white">
             {String(activeFeature + 1).padStart(2, "0")} / {String(features.length).padStart(2, "0")}
           </span>
         </div>
@@ -262,7 +262,7 @@ export default function ProductFeatures() {
               key={index}
               onClick={() => setActiveFeature(index)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                activeFeature === index ? "bg-black w-4" : "bg-gray-300"
+                activeFeature === index ? "bg-white w-4" : "bg-gray-300"
               }`}
               aria-label={`Go to feature ${index + 1}`}
             />
