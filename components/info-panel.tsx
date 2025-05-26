@@ -27,22 +27,11 @@ export default function InfoPanel({ isOpen, title, description, onClose }: InfoP
   return (
     <div
       ref={panelRef}
-      className="info-panel fixed top-0 right-[-400px] w-[350px] h-full bg-black/90 backdrop-blur-lg shadow-2xl transition-all duration-500 ease-in-out z-50 overflow-auto"
+      className="info-panel fixed top-0 right-[-300px] w-[260px] h-full transition-all duration-500 ease-in-out z-50 overflow-auto bg-transparent shadow-none backdrop-blur-none"
     >
-      <div className="p-8">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
-          aria-label="Close panel"
-        >
-          <X className="w-5 h-5 text-white" />
-        </button>
-
-        <h2 className="text-3xl font-bold text-white mb-2 mt-4">{title}</h2>
-        
-        <div className="w-16 h-1 bg-blue-500 mb-8 rounded-full" />
-        
-        <p className="text-lg text-gray-200 leading-relaxed">
+      <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg m-4 mt-24">
+        <h2 className="text-2xl font-bold text-black mb-2 mt-2">{title}</h2>
+        <p className="text-base text-black leading-relaxed">
           {description}
         </p>
       </div>

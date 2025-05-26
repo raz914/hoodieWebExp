@@ -4,7 +4,7 @@ import ProductStageScene from "./ProductStageScene";
 import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 
-function AnimatedCamera({ target }) {
+function AnimatedCamera({ target }: { target: [number, number, number] }) {
   const { camera } = useThree();
   const targetRef = useRef(target);
 
@@ -24,10 +24,10 @@ function AnimatedCamera({ target }) {
   return null;
 }
 
-const ProductStage = ({ cameraTarget = [0, 3, 10] }) => {
+const ProductStage = ({ cameraTarget = [0, 3, 10] }: { cameraTarget?: [number, number, number] }) => {
   return (
-    <div className="product-stage" style={{ width: '100%', height: '100vh', minHeight: 400, position: 'absolute', top: 0, left: 0 }}>
-      <Canvas camera={{ position: cameraTarget, fov: 35 }} shadows>
+    <div className="product-stage" style={{ position: 'fixed', top: 0, left: 0, width: '800px', height: '100vh', minHeight: 400, zIndex: 0, margin: '0 auto' }}>
+      <Canvas camera={{ position: cameraTarget as [number, number, number], fov: 35 }} shadows>
         <AnimatedCamera target={cameraTarget} />
         <Settings />
         <ProductStageScene />

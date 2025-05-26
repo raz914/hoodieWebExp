@@ -117,16 +117,16 @@ export default function Home() {
 
   // Handle wheel scrolling
   useEffect(() => {
-    let isScrolling = false;
     const handleWheel = (e: WheelEvent) => {
       // Check if the event came from the product features section
-      const productSection = document.getElementById('product');
-      if (productSection && productSection.contains(e.target as Node)) {
+      const productFeaturesSection = document.getElementById('product');
+      if (productFeaturesSection && productFeaturesSection.contains(e.target as Node)) {
         // If on product section:
         // 1. If scrolling down but not at end, let ProductFeatures handle it
         // 2. If scrolling up but not at start, let ProductFeatures handle it
         if ((!productFeaturesCompleted && e.deltaY > 0) || 
             (!isAtProductFirstFeature && e.deltaY < 0)) {
+          e.preventDefault();
           return;
         }
         // Reset states when needed
@@ -137,28 +137,38 @@ export default function Home() {
           setProductFeaturesCompleted(false);
         }
       }
+
+      // Handle scrolling to product section
+      const mainElement = mainRef.current;
+      if (!mainElement) return;
+
+      const currentScroll = mainElement.scrollTop;
+      const windowHeight = mainElement.clientHeight;
+      const productSectionElement = document.getElementById('product');
       
-      if (isScrolling) return;
-      
-      isScrolling = true;
-      e.preventDefault();
-      
-      if (e.deltaY > 0) {
-        // Scroll down
-        const nextIndex = Math.min(currentSectionIndex + 1, sections.length - 1);
-        setCurrentSectionIndex(nextIndex);
-        document.getElementById(sections[nextIndex])?.scrollIntoView({ behavior: "smooth" });
-      } else {
-        // Scroll up
-        const prevIndex = Math.max(currentSectionIndex - 1, 0);
-        setCurrentSectionIndex(prevIndex);
-        document.getElementById(sections[prevIndex])?.scrollIntoView({ behavior: "smooth" });
+      if (productSectionElement) {
+        const productTop = productSectionElement.offsetTop;
+        const productBottom = productTop + productSectionElement.offsetHeight;
+        
+        // If we're near the product section and scrolling towards it
+        if (e.deltaY > 0 && // Scrolling down
+            currentScroll < productTop && 
+            currentScroll + windowHeight > productTop - windowHeight * 0.5) {
+          e.preventDefault();
+          productSectionElement.scrollIntoView({ behavior: "smooth" });
+        }
+        // If we're at the end of product features and scrolling down
+        else if (e.deltaY > 0 && 
+                 productFeaturesCompleted && 
+                 currentScroll >= productTop && 
+                 currentScroll < productBottom) {
+          e.preventDefault();
+          const nextSection = document.getElementById('about');
+          if (nextSection) {
+            nextSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }
       }
-      
-      // Prevent multiple scrolls
-      setTimeout(() => {
-        isScrolling = false;
-      }, 1000); // Adjust timeout as needed for smooth scrolling
     };
     
     const mainElement = mainRef.current;
@@ -169,6 +179,79 @@ export default function Home() {
     return () => {
       if (mainElement) {
         mainElement.removeEventListener("wheel", handleWheel);
+      }
+    };
+  }, [currentSectionIndex, sections, productFeaturesCompleted, isAtProductFirstFeature]);
+
+  // Handle touch events for mobile
+  useEffect(() => {
+    let touchStartY = 0;
+    const minSwipeDistance = 50;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      // Check if the event came from the product features section
+      const productFeaturesSection = document.getElementById('product');
+      if (productFeaturesSection && productFeaturesSection.contains(e.target as Node)) {
+        // Handle specific cases:
+        // 1. If at first feature and swiping up, navigate to previous section
+        // 2. If at last feature and swiping down, navigate to next section
+        if ((isAtProductFirstFeature && e.changedTouches[0].clientY > touchStartY + minSwipeDistance) || 
+            (productFeaturesCompleted && e.changedTouches[0].clientY < touchStartY - minSwipeDistance)) {
+          // Reset states
+          if (isAtProductFirstFeature) setIsAtProductFirstFeature(false);
+          if (productFeaturesCompleted) setProductFeaturesCompleted(false);
+        } else {
+          // Otherwise let the product component handle it
+          return;
+        }
+      }
+
+      // Handle swiping to product section
+      const mainElement = mainRef.current;
+      if (!mainElement) return;
+
+      const currentScroll = mainElement.scrollTop;
+      const windowHeight = mainElement.clientHeight;
+      const productSectionElement = document.getElementById('product');
+      
+      if (productSectionElement) {
+        const productTop = productSectionElement.offsetTop;
+        const productBottom = productTop + productSectionElement.offsetHeight;
+        const swipeDistance = touchStartY - e.changedTouches[0].clientY;
+        
+        // If we're near the product section and swiping towards it
+        if (swipeDistance < -minSwipeDistance && // Swiping down
+            currentScroll < productTop && 
+            currentScroll + windowHeight > productTop - windowHeight * 0.5) {
+          productSectionElement.scrollIntoView({ behavior: "smooth" });
+        }
+        // If we're at the end of product features and swiping down
+        else if (swipeDistance < -minSwipeDistance && 
+                 productFeaturesCompleted && 
+                 currentScroll >= productTop && 
+                 currentScroll < productBottom) {
+          const nextSection = document.getElementById('about');
+          if (nextSection) {
+            nextSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }
+    };
+
+    const mainElement = mainRef.current;
+    if (mainElement) {
+      mainElement.addEventListener('touchstart', handleTouchStart);
+      mainElement.addEventListener('touchend', handleTouchEnd);
+    }
+    
+    return () => {
+      if (mainElement) {
+        mainElement.removeEventListener('touchstart', handleTouchStart);
+        mainElement.removeEventListener('touchend', handleTouchEnd);
       }
     };
   }, [currentSectionIndex, sections, productFeaturesCompleted, isAtProductFirstFeature]);
@@ -201,96 +284,6 @@ export default function Home() {
       })
     }
   }, [isClient, sections])
-
-  // Handle touch events for swipe navigation
-  useEffect(() => {
-    let touchStartY = 0;
-    let touchEndY = 0;
-    const minSwipeDistance = 50;
-    let isSwiping = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      // Check if the event came from the product features section
-      const productSection = document.getElementById('product');
-      if (productSection && productSection.contains(e.target as Node)) {
-        // If in product section, let the component handle its internal touch events
-        return;
-      }
-      
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      // Check if the event came from the product features section
-      const productSection = document.getElementById('product');
-      if (productSection && productSection.contains(e.target as Node)) {
-        // In product section - let it handle it
-        return;
-      }
-      
-      // Prevent default to disable native scrolling
-      e.preventDefault();
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      // Check if the event came from the product features section
-      const productSection = document.getElementById('product');
-      if (productSection && productSection.contains(e.target as Node)) {
-        // Handle specific cases:
-        // 1. If at first feature and swiping up, navigate to previous section
-        // 2. If at last feature and swiping down, navigate to next section
-        if ((isAtProductFirstFeature && e.changedTouches[0].clientY > touchStartY + minSwipeDistance) || 
-            (productFeaturesCompleted && e.changedTouches[0].clientY < touchStartY - minSwipeDistance)) {
-          // Reset states
-          if (isAtProductFirstFeature) setIsAtProductFirstFeature(false);
-          if (productFeaturesCompleted) setProductFeaturesCompleted(false);
-        } else {
-          // Otherwise let the product component handle it
-          return;
-        }
-      }
-      
-      if (isSwiping) return;
-      
-      touchEndY = e.changedTouches[0].clientY;
-      const distance = touchStartY - touchEndY;
-      
-      if (Math.abs(distance) > minSwipeDistance) {
-        isSwiping = true;
-        
-        if (distance > 0) {
-          // Swipe up (go down)
-          const nextIndex = Math.min(currentSectionIndex + 1, sections.length - 1);
-          setCurrentSectionIndex(nextIndex);
-          document.getElementById(sections[nextIndex])?.scrollIntoView({ behavior: "smooth" });
-        } else {
-          // Swipe down (go up)
-          const prevIndex = Math.max(currentSectionIndex - 1, 0);
-          setCurrentSectionIndex(prevIndex);
-          document.getElementById(sections[prevIndex])?.scrollIntoView({ behavior: "smooth" });
-        }
-        
-        setTimeout(() => {
-          isSwiping = false;
-        }, 1000);
-      }
-    };
-
-    const mainElement = mainRef.current;
-    if (mainElement && isMobile) {
-      mainElement.addEventListener("touchstart", handleTouchStart, { passive: false });
-      mainElement.addEventListener("touchmove", handleTouchMove, { passive: false });
-      mainElement.addEventListener("touchend", handleTouchEnd, { passive: false });
-    }
-
-    return () => {
-      if (mainElement && isMobile) {
-        mainElement.removeEventListener("touchstart", handleTouchStart);
-        mainElement.removeEventListener("touchmove", handleTouchMove);
-        mainElement.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-  }, [currentSectionIndex, sections, isMobile, isAtProductFirstFeature, productFeaturesCompleted]);
 
   if (!isClient) {
     return null // Return null on server-side to prevent hydration errors
