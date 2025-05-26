@@ -63,6 +63,7 @@ p, li, a {
 .snap-container {
   height: 100vh;
   overflow-y: scroll;
+  scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
@@ -74,6 +75,7 @@ p, li, a {
 
 /* Snap sections */
 .snap-section {
+  scroll-snap-align: start;
   height: 100vh;
   position: relative;
   overflow: hidden;
@@ -83,17 +85,6 @@ p, li, a {
   align-items: center;
   padding: 2rem;
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-}
-
-/* Product section specific snap scrolling */
-#product {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-/* When scrolling to product section, snap to it */
-.snap-container:has(#product:target) {
-  scroll-snap-type: y mandatory;
 }
 
 /* Adjust padding for mobile devices */

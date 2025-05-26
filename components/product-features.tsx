@@ -47,6 +47,15 @@ const features = [
     cameraPosition: [-1.4, 0.9, 1.5] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
   },
+  {
+    id: 5,
+    title: "360° View",
+    description:
+      "Explore the hoodie from every angle. Click and drag to rotate the view and see all the innovative features from any perspective.",
+    hotspotPosition: [0, 0.3, 0] as [number, number, number],
+    cameraPosition: [0, 0.3, 1.6] as [number, number, number],
+    cameraTarget: [0, 0.3, 0] as [number, number, number],
+  },
 ]
 
 type CameraControllerProps = {
@@ -110,6 +119,7 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
   const feature = features[activeFeature]
   const model = useGLTF("/stage.glb")
   const [bakedMap] = useLoader(THREE.TextureLoader, ["/stage_baked.jpg"])
+  const { camera, gl } = useThree()
   
   useEffect(() => {
     bakedMap.flipY = false
@@ -124,14 +134,28 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
       }
     })
   }, [bakedMap, model.scene])
+
+  // Reset camera position when switching to orbit mode
+  useEffect(() => {
+    if (activeFeature === 4) {
+      camera.position.set(0, 0.3, 2)
+      camera.lookAt(0, 0.3, 0)
+      // Ensure the canvas can receive pointer events
+      gl.domElement.style.pointerEvents = 'auto'
+    } else {
+      gl.domElement.style.pointerEvents = 'none'
+    }
+  }, [activeFeature, camera, gl])
   
   return (
     <>
-      <CameraController 
-        position={feature.cameraPosition} 
-        target={feature.cameraTarget}
-        onAnimationComplete={onAnimationComplete}
-      />
+      {activeFeature !== 4 && (
+        <CameraController 
+          position={feature.cameraPosition} 
+          target={feature.cameraTarget}
+          onAnimationComplete={onAnimationComplete}
+        />
+      )}
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
@@ -139,7 +163,13 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
       <OrbitControls 
         enableZoom={false}
         enablePan={false}
-        enableRotate={false}
+        enableRotate={activeFeature === 4}
+        minPolarAngle={Math.PI / 4}
+        maxPolarAngle={Math.PI * 3/4}
+        rotateSpeed={0.5}
+        target={[0, 0.3, 0]}
+        makeDefault={activeFeature === 4}
+        domElement={gl.domElement}
       />
       
       {/* Stage Model */}
@@ -173,8 +203,8 @@ export default function ProductFeatures() {
       const now = Date.now()
       const timeDiff = now - lastScrollTime.current
       
-      // Debounce scroll events
-      if (timeDiff < 800 || isAnimating) return
+      // Reduce debounce time from 800ms to 300ms for more responsive scrolling
+      // if (timeDiff < 300 || isAnimating) return
       
       // Check boundaries
       if (activeFeature === features.length - 1 && e.deltaY > 0) {
@@ -197,7 +227,7 @@ export default function ProductFeatures() {
       // Set animating state
       setIsAnimating(true)
       
-      // Handle scroll
+      // Handle scroll with reduced animation time
       if (e.deltaY > 0) {
         // Scroll down
         const nextIndex = Math.min(activeFeature + 1, features.length - 1)
@@ -293,6 +323,7 @@ export default function ProductFeatures() {
           margin: 0,
           padding: 0,
           background: 'transparent',
+          touchAction: 'none', // Prevent default touch actions
         }}
       >
         {/* <div className="absolute top-8 left-8 z-20">
@@ -300,7 +331,18 @@ export default function ProductFeatures() {
         </div> */}
 
         <div ref={containerRef} className="w-full h-full">
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 2rem)', margin: '1rem 0', zIndex: -1 }}>
+          <div 
+            style={{ 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              width: '100vw', 
+              height: 'calc(100vh - 2rem)', 
+              margin: '1rem 0', 
+              zIndex: 1, // Raise z-index so canvas is above background but below info panel
+              pointerEvents: 'auto',
+            }}
+          >
             <Canvas camera={{ position: features[activeFeature].cameraPosition, fov: 50 }}>
               <Scene activeFeature={activeFeature} onAnimationComplete={handleAnimationComplete} />
             </Canvas>
@@ -362,13 +404,60 @@ export default function ProductFeatures() {
           )}
         </div>
 
-        {/* Info Panel */}
-        <InfoPanel
-          isOpen={isInfoPanelOpen}
-          title={features[activeFeature].title}
-          description={features[activeFeature].description}
-          onClose={() => setIsInfoPanelOpen(false)}
-        />
+        {/* Info Panel or 360 badge */}
+        {activeFeature < 4 ? (
+          <div
+            className="info-panel-wrapper"
+            style={{ position: 'absolute', top: 32, right: 32, left: 'auto', bottom: 'auto', zIndex: 10, transform: 'none' }}
+          >
+            <InfoPanel
+              isOpen={true}
+              title={features[activeFeature].title}
+              description={features[activeFeature].description}
+              onClose={() => setIsInfoPanelOpen(false)}
+            />
+            <style>{`
+              @media (max-width: 640px) {
+                .info-panel-wrapper {
+                  top: 48vh !important;
+                  bottom: 2vh !important;
+                  left: 55% !important;
+                  right: auto !important;
+                  transform: translateX(-50%) !important;
+                  width: 92vw;
+                  max-width: 360px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: flex-end;
+                  z-index: 10;
+                  padding-bottom: 8px;
+                }
+              }
+              @media (max-width: 400px) {
+                .info-panel-wrapper {
+                  width: 98vw;
+                  max-width: 98vw;
+                  font-size: 0.95rem;
+                }
+              }
+            `}</style>
+          </div>
+        ) : (
+          <div style={{ position: 'absolute', bottom: 80, right: 32, zIndex: 10 }}>
+            <div style={{
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              borderRadius: '1rem',
+              padding: '0.5rem 1.25rem',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              letterSpacing: '0.05em',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}>
+              360° View
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

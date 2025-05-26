@@ -53,61 +53,57 @@ export default function Navbar() {
   }
 
   return (
-    <nav
-      className={cn(
-        "fixed top-0 left-0 w-full z-50 transition-all duration-300 px-4 sm:px-6 py-3 sm:py-4",
-        scrolled ? "bg-white/30 backdrop-blur-md shadow-sm" : "bg-transparent",
-        "text-black"
-      )}
-    >
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="#" className="text-lg sm:text-xl font-bold text-black">
-          VHALÓR
-        </Link>
-
-        {isMobile ? (
-          <>
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="p-2 focus:outline-none text-black"
-              aria-label={isOpen ? "Close menu" : "Open menu"}
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
-            {isOpen && (
-              <div className="fixed inset-0 top-14 bg-black/90 backdrop-blur-lg z-40 flex flex-col justify-start pt-8">
-                <ul className="flex flex-col gap-6 px-6">
-                  {menuItems.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="text-lg font-medium text-black hover:text-gray-700 block py-2"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        ) : (
-          <ul className="flex gap-6 md:gap-8">
-            {menuItems.map((item) => (
-              <li key={item.name}>
-                <Link 
-                  href={item.href} 
-                  className="font-medium transition-colors text-black hover:text-gray-700"
-                >
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </nav>
+    <header className="header-bar">
+      <div className="header-logo">VHALÓR</div>
+      <nav className="header-nav">
+        <a className="header-link" href="#hero">Home</a>
+        <a className="header-link" href="#about">About</a>
+        <a className="header-link" href="#contact">Contact</a>
+      </nav>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
+        .header-bar {
+          width: 100%;
+          background: var(--background);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 2.5rem 0 2.5rem;
+          height: 64px;
+          box-sizing: border-box;
+          box-shadow: none;
+        }
+        .header-logo {
+          font-family: 'Poppins', 'Quicksand', Arial, sans-serif;
+          font-weight: bold;
+          font-size: 2rem;
+          letter-spacing: 0.04em;
+          color: #222;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .header-nav {
+          display: flex;
+          gap: 2.5rem;
+        }
+        .header-link {
+          font-family: 'Poppins', 'Quicksand', Arial, sans-serif;
+          font-size: 1.5rem;
+          color: #222;
+          text-decoration: none;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+          transition: color 0.2s;
+        }
+        .header-link:hover {
+          color: #444;
+        }
+        @media (max-width: 900px) {
+          .header-bar { padding: 0 1rem; }
+          .header-logo { font-size: 1.3rem; }
+          .header-link { font-size: 1rem; }
+        }
+      `}</style>
+    </header>
   )
 }
