@@ -13,20 +13,24 @@ html {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: transparent;
+  color: #111;
+  background: #e6e6e6;
   overflow-x: hidden;
 }
 
 /* Add text shadow for better readability over the background */
 h1, h2, h3, h4, h5, h6 {
-  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  color: #111;
   letter-spacing: 0.02em;
+  font-family: 'Aptos', sans-serif;
+  font-weight: bold;
+  text-shadow: none !important;
 }
 
 p, li, a {
-  text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  color: #111;
   letter-spacing: 0.01em;
+  font-family: 'DM Sans', sans-serif;
 }
 
 /* Mobile typography adjustments */
@@ -49,13 +53,10 @@ p, li, a {
 
 /* Enhance section cards to have better visibility over background */
 .snap-section > div {
-  /* Make backgrounds fully transparent */
-  background-color: transparent;
-  /* Remove blur effect */
+  background-color: transparent !important;
+  box-shadow: none !important;
   backdrop-filter: none;
   border-radius: var(--radius);
-  /* Reduce shadow for better transparency */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 /* Scroll snap container */

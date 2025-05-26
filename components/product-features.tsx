@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Canvas, useFrame } from "@react-three/fiber"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Environment, OrbitControls } from "@react-three/drei"
-import { motion } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import ProductModel from "@/components/product-model"
 import { useMobile } from "@/hooks/use-mobile"
 import { ChevronUp, ChevronDown } from "lucide-react"
+import * as THREE from "three"
 
 const features = [
   {
@@ -35,168 +36,97 @@ const features = [
   },
 ]
 
+// Camera hotspots for each feature (approximate, adjust as needed)
+const cameraHotspots: { position: [number, number, number]; target: [number, number, number] }[] = [
+  { position: [0, 0, 2], target: [0, 0, 0] }, // Full hoodie
+  { position: [-0.5, -0.2, 0.8], target: [-0.5, -0.2, 0] }, // Left pocket
+  { position: [0, 0.2, 0.8], target: [0, 0.5, 0] }, // Chest/upper
+  { position: [0.5, -0.2, 0.8], target: [0.5, -0.2, 0] }, // Right pocket
+]
+
+type CameraControllerProps = {
+  position: [number, number, number]
+  target: [number, number, number]
+}
+
+function CameraController({ position, target }: CameraControllerProps) {
+  const { camera } = useThree()
+  const targetVector = useRef(new THREE.Vector3(...target))
+  
+  useEffect(() => {
+    // Animate camera position and target
+    const animateCamera = async () => {
+      const duration = 1000 // 1 second animation
+      const startTime = Date.now()
+      const startPosition = camera.position.clone()
+      const startTarget = targetVector.current.clone()
+      const endPosition = new THREE.Vector3(...position)
+      const endTarget = new THREE.Vector3(...target)
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        
+        // Ease progress with smooth easing
+        const easedProgress = 1 - Math.pow(1 - progress, 3) // Cubic ease-out
+
+        // Interpolate position
+        camera.position.lerpVectors(startPosition, endPosition, easedProgress)
+        
+        // Interpolate target
+        targetVector.current.lerpVectors(startTarget, endTarget, easedProgress)
+        camera.lookAt(targetVector.current)
+
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        }
+      }
+
+      animate()
+    }
+
+    animateCamera()
+  }, [position, target, camera])
+  
+  return null
+}
+
 export default function ProductFeatures() {
   const [activeFeature, setActiveFeature] = useState(0)
-  const [hasReachedEnd, setHasReachedEnd] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const isMobile = useMobile()
+  const isInView = useInView(containerRef, { once: false, amount: 0.3 })
 
-  const nextFeature = () => {
-    if (activeFeature < features.length - 1) {
-      setActiveFeature(activeFeature + 1)
-      setHasReachedEnd(false)
-    } else {
-      setHasReachedEnd(true)
-      // Dispatch custom event to notify parent component
-      const event = new Event('productFeaturesTourCompleted');
-      window.dispatchEvent(event);
-    }
-  }
-
-  const prevFeature = () => {
-    if (activeFeature > 0) {
-      setActiveFeature(activeFeature - 1)
-      setHasReachedEnd(false)
-    } else if (activeFeature === 0) {
-      // At first feature, emit event
-      const event = new Event('productFeaturesAtStart');
-      window.dispatchEvent(event);
-    }
-  }
-
-  // Notify parent when we've reached the end of features
+  // Handle scroll events
   useEffect(() => {
-    const handleWheelCapture = (e: WheelEvent) => {
-      // If we're at the last feature and scrolling down, allow the event to propagate to the main scroll handler
-      if (hasReachedEnd && e.deltaY > 0) {
-        return;
-      }
-      
-      // If we're at the first feature and scrolling up, allow the event to propagate to the main scroll handler
-      if (activeFeature === 0 && e.deltaY < 0) {
-        return;
-      }
-      
-      // Otherwise, handle the scroll within our component
-      e.stopPropagation();
+    const handleScroll = (e: WheelEvent) => {
+      // If at last feature and scrolling down, allow scroll to propagate
+      if (activeFeature === features.length - 1 && e.deltaY > 0) return;
+      // If at first feature and scrolling up, allow scroll to propagate
+      if (activeFeature === 0 && e.deltaY < 0) return;
+
       e.preventDefault();
-      
-      if (e.deltaY > 0) {
-        nextFeature();
-      } else {
-        prevFeature();
-      }
+      setActiveFeature(prev => {
+        if (e.deltaY > 0) {
+          return Math.min(prev + 1, features.length - 1);
+        } else if (e.deltaY < 0) {
+          return Math.max(prev - 1, 0);
+        }
+        return prev;
+      });
     };
-    
+
     const section = sectionRef.current;
     if (section) {
-      section.addEventListener('wheel', handleWheelCapture, { capture: true, passive: false });
-      return () => section.removeEventListener('wheel', handleWheelCapture, { capture: true });
+      section.addEventListener('wheel', handleScroll, { passive: false });
+      return () => section.removeEventListener('wheel', handleScroll);
     }
-  }, [activeFeature, hasReachedEnd]);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        if (activeFeature < features.length - 1) {
-          e.preventDefault()
-          nextFeature()
-        }
-      } else if (e.key === "ArrowUp") {
-        if (activeFeature > 0) {
-          e.preventDefault()
-          prevFeature()
-        }
-      }
-    }
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("keydown", handleKeyDown)
-      return () => window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [activeFeature])
-
-  // Handle touch events for mobile swipe navigation
-  useEffect(() => {
-    if (!isMobile) return;
-    
-    let touchStartY = 0;
-    let touchEndY = 0;
-    const minSwipeDistance = 50;
-    let isSwiping = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      // Only prevent default if not at bounds
-      if ((activeFeature === 0 && touchStartY < e.touches[0].clientY) || 
-          (activeFeature === features.length - 1 && touchStartY > e.touches[0].clientY)) {
-        // Allow scrolling to prev/next section
-        return;
-      }
-      
-      // Prevent default scrolling if we're handling the swipe
-      e.preventDefault();
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (isSwiping) return;
-      
-      touchEndY = e.changedTouches[0].clientY;
-      const distance = touchStartY - touchEndY;
-      
-      // If at first feature and swiping down, allow parent to handle
-      if (activeFeature === 0 && distance < -minSwipeDistance) {
-        // Let main page handle it
-        return;
-      }
-      
-      // If at last feature and swiping up, allow parent to handle
-      if (activeFeature === features.length - 1 && distance > minSwipeDistance) {
-        // Let main page handle it
-        return;
-      }
-      
-      if (Math.abs(distance) > minSwipeDistance) {
-        isSwiping = true;
-        
-        if (distance > 0) {
-          // Swipe up (next feature)
-          nextFeature();
-        } else {
-          // Swipe down (previous feature)
-          prevFeature();
-        }
-        
-        setTimeout(() => {
-          isSwiping = false;
-        }, 500);
-      }
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("touchstart", handleTouchStart, { passive: false });
-      container.addEventListener("touchmove", handleTouchMove, { passive: false });
-      container.addEventListener("touchend", handleTouchEnd, { passive: false });
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("touchstart", handleTouchStart);
-        container.removeEventListener("touchmove", handleTouchMove);
-        container.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-  }, [isMobile, activeFeature]);
+  }, [activeFeature]);
 
   return (
     <div ref={sectionRef} className="w-full max-w-[1600px] mx-auto h-full flex flex-col justify-center items-center">
-      <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-16 text-white">Product Features</h2>
+      <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-16">Product Features</h2>
 
       <div 
         ref={containerRef} 
@@ -215,33 +145,71 @@ export default function ProductFeatures() {
           >
             <div className="w-full md:w-1/2 px-4 md:px-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                initial={{ opacity: 0, x: -100, scale: 0.9, rotateY: -15 }}
+                animate={isInView && activeFeature === index ? { 
+                  opacity: 1, 
+                  x: 0, 
+                  scale: 1,
+                  rotateY: 0,
+                  transition: {
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20,
+                    delay: 0.2
+                  }
+                } : { opacity: 0, x: -100, scale: 0.9, rotateY: -15 }}
                 key={feature.id}
                 className="p-6 rounded-lg"
               >
-                <h3 className="text-2xl md:text-4xl font-bold mb-4 text-white">{feature.title}</h3>
-                <p className="text-lg md:text-xl text-white">{feature.description}</p>
+                <motion.h3 
+                  className="text-2xl md:text-4xl font-bold mb-4"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={isInView && activeFeature === index ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20,
+                    delay: 0.4 
+                  }}
+                >
+                  {feature.title}
+                </motion.h3>
+                <motion.p 
+                  className="text-lg md:text-xl"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={isInView && activeFeature === index ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 20,
+                    delay: 0.6 
+                  }}
+                >
+                  {feature.description}
+                </motion.p>
               </motion.div>
             </div>
 
             <div className="w-full md:w-1/2 h-[40vh] md:h-[60vh]">
-              <Canvas camera={{ position: [0, 0, 2], fov: 50 }}>
+              <Canvas camera={{ position: cameraHotspots[activeFeature].position, fov: 50 }}>
+                <CameraController 
+                  position={cameraHotspots[activeFeature].position} 
+                  target={cameraHotspots[activeFeature].target} 
+                />
                 <ambientLight intensity={0.5} />
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
                 <pointLight position={[-10, -10, -10]} />
                 <Environment preset="city" />
                 <OrbitControls 
                   enableZoom={false}
-                  autoRotate
+                  autoRotate={activeFeature === 0}
                   autoRotateSpeed={1.5}
                   enablePan={false}
                 />
                 <ProductModel
                   position={[0, 0, 0]}
                   scale={1}
-                  rotation={[0, Math.PI * 2 * (index / features.length), 0]}
+                  rotation={[0, Math.PI * 2 * (activeFeature / features.length), 0]}
                 />
               </Canvas>
             </div>
@@ -250,7 +218,7 @@ export default function ProductFeatures() {
 
         {/* Feature indicator */}
         <div className="absolute bottom-8 left-8 z-10">
-          <span className="font-mono text-sm text-white">
+          <span className="font-mono text-sm text-black">
             {String(activeFeature + 1).padStart(2, "0")} / {String(features.length).padStart(2, "0")}
           </span>
         </div>
@@ -262,7 +230,7 @@ export default function ProductFeatures() {
               key={index}
               onClick={() => setActiveFeature(index)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                activeFeature === index ? "bg-white w-4" : "bg-gray-300"
+                activeFeature === index ? "bg-black w-4" : "bg-black/30"
               }`}
               aria-label={`Go to feature ${index + 1}`}
             />

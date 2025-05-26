@@ -14,17 +14,10 @@ export default function BackgroundOverlay({
   minHeight = "auto", // Default to auto to prevent unnecessary stretching
 }: BackgroundOverlayProps) {
   // Ensure intensity is between 0 and 1
-  const safeIntensity = Math.max(0, Math.min(1, intensity));
-  
+  // const safeIntensity = Math.max(0, Math.min(1, intensity));
   return (
     <div className={`relative ${className}`} style={{ minHeight }}>
-      <div 
-        className="absolute inset-0 bg-black z-0"
-        style={{ 
-          opacity: safeIntensity,
-          maxHeight: "100%" // Ensure it doesn't stretch beyond the content
-        }}
-      />
+      {/* Removed black overlay */}
       <div className="relative z-10">
         {children}
       </div>

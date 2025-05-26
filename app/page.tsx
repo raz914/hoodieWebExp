@@ -8,6 +8,7 @@ import VideoSection from "@/components/video-section"
 import ProductFeatures from "@/components/product-features"
 import AboutSection from "@/components/about-section"
 import ContactSection from "@/components/contact-section"
+import ProductFeaturesSection from "@/components/ProductFeaturesSection"
 
 export default function Home() {
   const isMobile = useMobile()
@@ -322,7 +323,7 @@ export default function Home() {
           className={`snap-section ${scrollProgress >= 0.4 && scrollProgress < 0.7 ? 'sunset-section' : 
                                      scrollProgress >= 0.7 ? 'night-section' : 'day-section'}`}
         >
-          <ProductFeatures />
+          <ProductFeaturesSection />
         </section>
 
         <section 

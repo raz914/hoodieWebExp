@@ -82,7 +82,7 @@ export default function LoadingScreen() {
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-r from-purple-900 to-indigo-900"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#e6e6e6]"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
@@ -93,13 +93,13 @@ export default function LoadingScreen() {
           <motion.div 
             className="relative"
             animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           >
             <svg width="80" height="80" viewBox="0 0 100 100">
               <path
                 d="M50 15 L85 85 L15 85 Z"
                 fill="transparent"
-                stroke="white"
+                stroke="#222"
                 strokeWidth="5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -108,12 +108,12 @@ export default function LoadingScreen() {
           </motion.div>
           
           <motion.div
-            className="mt-8 text-white text-center px-4 max-w-md"
+            className="mt-8 text-center px-4 max-w-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <p className="text-xl font-bold mb-2">Loading TravelHoodie Experience</p>
+            <p className="text-xl font-bold mb-2">Loading VHALÓR Experience</p>
             <AnimatePresence mode="wait">
               <motion.div
                 key={factIndex}
@@ -123,10 +123,10 @@ export default function LoadingScreen() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.5 }}
               >
-                <p className="text-purple-300 font-medium mb-1">
+                <p className="font-medium mb-1" style={{ color: '#444' }}>
                   {facts[factIndex].intro}
                 </p>
-                <p className="opacity-90">
+                <p className="opacity-90" style={{ color: '#444' }}>
                   {facts[factIndex].heading}
                 </p>
               </motion.div>
