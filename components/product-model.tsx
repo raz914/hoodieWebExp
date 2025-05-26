@@ -44,15 +44,15 @@ export default function ProductModel({ position = [0, 0, 0], scale = 1, rotation
         </mesh>
       </group>
     )
-  }
+    }
 
-  return (
-    <primitive 
-      ref={meshRef} 
+    return (
+      <primitive 
+        ref={meshRef} 
       object={scene} 
-      position={position} 
-      scale={scale} 
+        position={position} 
+        scale={scale} 
       rotation={rotation} 
     />
-  )
+    )
 }

@@ -92,3 +92,28 @@ body {
     @apply bg-background text-foreground;
   }
 }
+/* Enhance section cards to have better visibility over background */
+.snap-section > div {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  border-radius: var(--radius);
+}
+
+/* Info panel custom scrollbar */
+.info-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.info-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.info-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
