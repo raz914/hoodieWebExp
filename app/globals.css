@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -59,11 +60,10 @@ p, li, a {
   border-radius: var(--radius);
 }
 
-/* Scroll snap container */
+/* Remove snap scrolling container */
 .snap-container {
   height: 100vh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
+  overflow-y: auto;
   scroll-behavior: smooth;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
@@ -73,17 +73,15 @@ p, li, a {
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* Snap sections */
+/* Remove snap sections */
 .snap-section {
-  scroll-snap-align: start;
-  height: 100vh;
+  min-height: 80vh;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
@@ -223,8 +221,6 @@ body {
   animation: float 15s ease-in-out infinite;
 }
 
-/* Section transitions */
-
 /* Add glow effects to text on darker backgrounds */
 @keyframes softGlow {
   0%, 100% {
@@ -316,5 +312,32 @@ body {
     max-width: 100%;
     overflow-wrap: break-word;
     word-wrap: break-word;
+  }
+}
+
+.ultra-thin-heading {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 280;
+  font-size: 2rem;
+
+  letter-spacing: 0.04em;
+}
+
+.hero-intro {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #222;
+  margin-bottom: 2.5rem;
+  margin-top: 1.5rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+@media (max-width: 640px) {
+  .hero-intro {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+    margin-top: 1rem;
   }
 }

@@ -42,9 +42,9 @@ export default function Navbar() {
 
   const menuItems = [
     { name: "Home", href: "#hero" },
-    { name: "Features", href: "#product" },
     { name: "About", href: "#about" },
     { name: "Contact", href: "#contact" },
+    { name: "Features", href: "#product" },
   ]
 
   // Don't render navbar when loading
@@ -55,13 +55,61 @@ export default function Navbar() {
   return (
     <header className="header-bar">
       <div className="header-logo">VHALÓR</div>
-      <nav className="header-nav">
-        <a className="header-link" href="#hero">Home</a>
-        <a className="header-link" href="#about">About</a>
-        <a className="header-link" href="#contact">Contact</a>
-      </nav>
+      {/* Desktop Nav */}
+      {!isMobile && (
+        <nav className="header-nav">
+          <a className="header-link" href="#hero">Home</a>
+          <a className="header-link" href="#about">About</a>
+          <a className="header-link" href="#contact">Contact</a>
+          <a className="header-link" href="#product">Features</a>
+        </nav>
+      )}
+      {/* Mobile Dropdown Menu */}
+      {isMobile && (
+        <div className="relative">
+          <button
+            className="p-2 focus:outline-none"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-label="Open menu"
+          >
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow-lg z-50 flex flex-col">
+              <a
+                className="header-link px-4 py-2 border-b border-gray-200 hover:bg-gray-100"
+                href="#hero"
+                onClick={() => setIsOpen(false)}
+              >
+                Home
+              </a>
+              <a
+                className="header-link px-4 py-2 border-b border-gray-200 hover:bg-gray-100"
+                href="#about"
+                onClick={() => setIsOpen(false)}
+              >
+                About
+              </a>
+              <a
+                className="header-link px-4 py-2 border-b border-gray-200 hover:bg-gray-100"
+                href="#contact"
+                onClick={() => setIsOpen(false)}
+              >
+                Contact
+              </a>
+              <a
+                className="header-link px-4 py-2 hover:bg-gray-100"
+                href="#product"
+                onClick={() => setIsOpen(false)}
+              >
+                Features
+              </a>
+            </div>
+          )}
+        </div>
+      )}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@500;700&display=swap');
         .header-bar {
           width: 100%;
           background: var(--background);
@@ -72,9 +120,15 @@ export default function Navbar() {
           height: 64px;
           box-sizing: border-box;
           box-shadow: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          z-index: 1000;
+          backdrop-filter: blur(8px);
+          background: rgba(255, 255, 255, 0.8);
         }
         .header-logo {
-          font-family: 'Poppins', 'Quicksand', Arial, sans-serif;
+          font-family: 'Aptos', Arial, sans-serif;
           font-weight: bold;
           font-size: 2rem;
           letter-spacing: 0.04em;
@@ -86,17 +140,19 @@ export default function Navbar() {
           gap: 2.5rem;
         }
         .header-link {
-          font-family: 'Poppins', 'Quicksand', Arial, sans-serif;
+          font-family: 'Aptos', Arial, sans-serif;
           font-size: 1.5rem;
           color: #222;
           text-decoration: none;
           font-weight: 500;
           letter-spacing: 0.08em;
           text-shadow: 0 2px 8px rgba(0,0,0,0.12);
-          transition: color 0.2s;
+          transition: all 0.2s ease;
+          display: inline-block;
         }
         .header-link:hover {
           color: #444;
+          transform: scale(1.05);
         }
         @media (max-width: 900px) {
           .header-bar { padding: 0 1rem; }

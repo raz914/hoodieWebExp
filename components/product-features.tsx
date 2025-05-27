@@ -324,6 +324,7 @@ export default function ProductFeatures() {
           padding: 0,
           background: 'transparent',
           touchAction: 'none', // Prevent default touch actions
+          borderRadius: '5rem', // Add rounded corners
         }}
       >
         {/* <div className="absolute top-8 left-8 z-20">
@@ -339,8 +340,10 @@ export default function ProductFeatures() {
               width: '100vw', 
               height: 'calc(100vh - 2rem)', 
               margin: '1rem 0', 
-              zIndex: 1, // Raise z-index so canvas is above background but below info panel
+              zIndex: 1,
               pointerEvents: 'auto',
+              borderRadius: '2rem', // Add rounded corners to the canvas container
+              overflow: 'hidden', // Ensure content doesn't overflow rounded corners
             }}
           >
             <Canvas camera={{ position: features[activeFeature].cameraPosition, fov: 50 }}>
