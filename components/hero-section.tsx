@@ -58,7 +58,7 @@ export default function HeroSection() {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
               className="w-full"
             >
-              <motion.h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-tight mb-0 ultra-thin-heading mx-auto max-w-6xl lg:max-w-6xl px-4 sm:px-6 md:px-8"
+              <motion.h1 className="w-full text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-tight mb-0 ultra-thin-heading mx-auto max-w-6xl lg:max-w-6xl px-4 sm:px-6 md:px-8"
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: 'easeOut', delay: 0.3 }}
