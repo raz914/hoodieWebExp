@@ -45,6 +45,12 @@ export default function HeroSection() {
           animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
           className="hero-intro mb-4"
+          style={{
+            fontFamily: "'A Pompadour Bold Sample', Arial, sans-serif",
+            fontSize: "1.9rem",
+            letterSpacing: "0.099em",
+            textShadow: "0 2px 8px rgba(0,0,0,0.12)"
+          }}
         >
           {facts[currentIndex].intro}
         </motion.div>
@@ -56,7 +62,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
-              className="w-full"
+              className="w-[80%] mx-auto"
             >
               <motion.h1 className="w-full text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-tight mb-0 ultra-thin-heading mx-auto max-w-6xl lg:max-w-6xl px-4 sm:px-6 md:px-8"
                 initial={{ opacity: 0, y: 40 }}

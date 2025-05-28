@@ -19,7 +19,7 @@ export default function Home() {
   const [isAtProductFirstFeature, setIsAtProductFirstFeature] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   
-  const sections = ["hero", "video", "about", "contact", "product"]
+  const sections = ["hero", "video", "product", "about", "contact"]
 
   // Track scroll progress for time-of-day styling
   useEffect(() => {
@@ -126,6 +126,14 @@ export default function Home() {
         </section>
 
         <section 
+          id="product" 
+          className={`snap-section ${scrollProgress >= 0.4 && scrollProgress < 0.7 ? 'sunset-section' : 
+                                     scrollProgress >= 0.7 ? 'night-section' : 'day-section'} rounded-[2rem] mx-4 my-4 overflow-hidden`}
+        >
+          <ProductFeaturesSection />
+        </section>
+
+        <section 
           id="about" 
           className={`snap-section ${scrollProgress >= 0.4 && scrollProgress < 0.7 ? 'sunset-section' : 
                                      scrollProgress >= 0.7 ? 'night-section' : 'day-section'}`}
@@ -138,13 +146,6 @@ export default function Home() {
           className="snap-section night-section"
         >
           <ContactSection />
-        </section>
-
-        <section 
-          id="product" 
-          className={`snap-section ${scrollProgress >= 0.7 ? 'night-section' : 'sunset-section'} rounded-[2rem] mx-4 my-4 overflow-hidden`}
-        >
-          <ProductFeaturesSection />
         </section>
       </main>
     </div>

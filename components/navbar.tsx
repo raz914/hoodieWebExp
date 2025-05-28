@@ -109,7 +109,12 @@ export default function Navbar() {
         </div>
       )}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@500;700&display=swap');
+        @font-face {
+          font-family: 'A Pompadour Bold Sample';
+          src: url('/font/a-pompadour-sample/03_APompadourBoldSample.otf') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+        }
         .header-bar {
           width: 100%;
           background: var(--background);
@@ -128,8 +133,8 @@ export default function Navbar() {
           background: rgba(255, 255, 255, 0.8);
         }
         .header-logo {
-          font-family: 'Aptos', Arial, sans-serif;
-          font-weight: bold;
+          font-family: 'A Pompadour Bold Sample', Arial, sans-serif;
+          font-weight: normal;
           font-size: 2rem;
           letter-spacing: 0.04em;
           color: #222;
@@ -140,11 +145,11 @@ export default function Navbar() {
           gap: 2.5rem;
         }
         .header-link {
-          font-family: 'Aptos', Arial, sans-serif;
+          font-family: 'A Pompadour Bold Sample', Arial, sans-serif;
           font-size: 1.5rem;
           color: #222;
           text-decoration: none;
-          font-weight: 500;
+          font-weight: normal;
           letter-spacing: 0.08em;
           text-shadow: 0 2px 8px rgba(0,0,0,0.12);
           transition: all 0.2s ease;

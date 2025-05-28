@@ -17,6 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Aptos:wght@500;700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aptos:wght@500;700&display=swap" />
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap" />
+      </head>
       <body>
         <SectionProvider>
           <OverlayProvider>
