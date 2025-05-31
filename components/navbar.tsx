@@ -133,8 +133,8 @@ export default function Navbar() {
           background: rgba(255, 255, 255, 0.8);
         }
         .header-logo {
-          font-family: 'A Pompadour Bold Sample', Arial, sans-serif;
-          font-weight: normal;
+          font-family: 'Outfit', sans-serif;
+          font-weight: 700;
           font-size: 2rem;
           letter-spacing: 0.04em;
           color: #222;
@@ -145,7 +145,7 @@ export default function Navbar() {
           gap: 2.5rem;
         }
         .header-link {
-          font-family: 'A Pompadour Bold Sample', Arial, sans-serif;
+          font-family: 'Outfit', sans-serif;
           font-size: 1.5rem;
           color: #222;
           text-decoration: none;

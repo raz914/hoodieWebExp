@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;300;400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,15 +25,16 @@ body {
 h1, h2, h3, h4, h5, h6 {
   color: #111;
   letter-spacing: 0.02em;
-  font-family: 'Aptos', sans-serif;
-  font-weight: bold;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 100;
   text-shadow: none !important;
 }
 
 p, li, a {
   color: #111;
   letter-spacing: 0.01em;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
 }
 
 /* Mobile typography adjustments */
@@ -316,16 +319,15 @@ body {
 }
 
 .ultra-thin-heading {
-  font-family: 'Montserrat', Arial, sans-serif;
-  font-weight: 280;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 100;
   font-size: 2rem;
-
   letter-spacing: 0.04em;
 }
 
 .hero-intro {
-  font-family: 'Montserrat', Arial, sans-serif;
-  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
   font-size: 2rem;
   letter-spacing: 0.08em;
   text-align: center;

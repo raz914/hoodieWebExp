@@ -15,6 +15,7 @@ export default function VideoSection() {
   const [isPlaying, setIsPlaying] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [activeSlide, setActiveSlide] = useState(0)
 
   // Preload video when component mounts
   useEffect(() => {
@@ -61,6 +62,14 @@ export default function VideoSection() {
     setCurrentTime(time)
   }
 
+  const nextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % 2)
+  }
+
+  const prevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + 2) % 2)
+  }
+
   return (
     <BackgroundOverlay 
       intensity={overlayIntensity} 
@@ -70,7 +79,7 @@ export default function VideoSection() {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div ref={ref} className={`flex flex-col ${isMobile ? "" : "md:flex-row"} items-center gap-6 sm:gap-8 md:gap-16`}>
           <motion.div
-            className="w-full md:w-1/2"
+            className="w-full md:w-1/2 relative"
             initial={{ opacity: 0, x: -100, scale: 0.8 }}
             animate={isInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -100, scale: 0.8 }}
             transition={{ 
@@ -80,104 +89,109 @@ export default function VideoSection() {
               damping: 20
             }}
           >
-            <div className="aspect-video rounded-lg overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
-              <video 
-                ref={videoRef}
-                className="w-full h-full object-cover" 
-                autoPlay 
-                muted 
-                loop 
-                playsInline
-                src="/video/video.mp4"
-                preload="auto"
-              />
-            </div>
-            {/* Controls */}
-            <div className="flex items-center gap-4 mt-4 px-2 w-full">
-              <button
-                onClick={togglePlay}
-                className="w-12 h-12 flex items-center justify-center rounded-md bg-[#232b32] text-white hover:bg-[#232b32]/90 transition-colors focus:outline-none"
-                aria-label={isPlaying ? "Pause" : "Play"}
-                style={{ fontSize: 0 }}
-              >
-                {isPlaying ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="28" height="28">
-                    <rect x="5" y="4" width="5" height="16" rx="1.5" />
-                    <rect x="14" y="4" width="5" height="16" rx="1.5" />
+            <div className="aspect-video rounded-lg overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300 relative">
+              {activeSlide === 0 ? (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <video 
+                    ref={videoRef}
+                    className="max-w-full max-h-full object-contain" 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    src="/video/video.mp4"
+                    preload="auto"
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <img 
+                    src="/video/2.jpg" 
+                    alt="Product showcase" 
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              )}
+              
+              {/* Carousel Controls */}
+              <div className="absolute inset-0 flex items-center justify-between px-4">
+                <button
+                  onClick={prevSlide}
+                  className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  aria-label="Previous slide"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="28" height="28">
-                    <polygon points="6,4 20,12 6,20" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  aria-label="Next slide"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                )}
-              </button>
-              <span className="text-base text-black font-mono min-w-[48px] text-right select-none">
-                {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={duration || 0}
-                step={0.1}
-                value={currentTime}
-                onChange={handleSeek}
-                className="flex-1 h-2 mx-2 bg-gray-200 rounded-lg appearance-none cursor-pointer focus:outline-none"
-                aria-label="Seek"
-                style={{
-                  accentColor: '#111',
-                  height: '8px',
-                }}
-              />
-              <style jsx>{`
-                input[type='range']::-webkit-slider-thumb {
-                  -webkit-appearance: none;
-                  appearance: none;
-                  width: 24px;
-                  height: 24px;
-                  border-radius: 50%;
-                  background: #111;
-                  cursor: pointer;
-                  border: 2px solid #fff;
-                  box-shadow: 0 0 2px #0003;
-                  margin-top: -8px;
-                }
-                input[type='range']::-moz-range-thumb {
-                  width: 24px;
-                  height: 24px;
-                  border-radius: 50%;
-                  background: #111;
-                  cursor: pointer;
-                  border: 2px solid #fff;
-                  box-shadow: 0 0 2px #0003;
-                }
-                input[type='range']::-ms-thumb {
-                  width: 24px;
-                  height: 24px;
-                  border-radius: 50%;
-                  background: #111;
-                  cursor: pointer;
-                  border: 2px solid #fff;
-                  box-shadow: 0 0 2px #0003;
-                }
-                input[type='range']::-webkit-slider-runnable-track {
-                  height: 8px;
-                  background: #111;
-                  border-radius: 4px;
-                }
-                input[type='range']::-ms-fill-lower {
-                  background: #111;
-                }
-                input[type='range']::-ms-fill-upper {
-                  background: #eee;
-                }
-                input[type='range'] {
-                  outline: none;
-                }
-              `}</style>
-              <span className="text-base text-black font-mono min-w-[48px] text-left select-none">
-                {duration ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}` : '0:00'}
-              </span>
+                </button>
+              </div>
+
+              {/* Slide Indicators */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                {[0, 1].map((index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      activeSlide === index ? 'bg-white' : 'bg-white/50'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
+
+            {/* Video Controls - Only show when video is active */}
+            {activeSlide === 0 && (
+              <div className="flex items-center gap-4 mt-4 px-2 w-full">
+                <button
+                  onClick={togglePlay}
+                  className="w-12 h-12 flex items-center justify-center rounded-md bg-[#232b32] text-white hover:bg-[#232b32]/90 transition-colors focus:outline-none"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                  style={{ fontSize: 0 }}
+                >
+                  {isPlaying ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="28" height="28">
+                      <rect x="5" y="4" width="5" height="16" rx="1.5" />
+                      <rect x="14" y="4" width="5" height="16" rx="1.5" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="28" height="28">
+                      <polygon points="6,4 20,12 6,20" />
+                    </svg>
+                  )}
+                </button>
+                <span className="text-base text-black font-mono min-w-[48px] text-right select-none">
+                  {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 0}
+                  step={0.1}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="flex-1 h-2 mx-2 bg-gray-200 rounded-lg appearance-none cursor-pointer focus:outline-none"
+                  aria-label="Seek"
+                  style={{
+                    accentColor: '#111',
+                    height: '8px',
+                  }}
+                />
+                <span className="text-base text-black font-mono min-w-[48px] text-left select-none">
+                  {duration ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}` : '0:00'}
+                </span>
+              </div>
+            )}
           </motion.div>
 
           <motion.div
