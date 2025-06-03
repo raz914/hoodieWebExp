@@ -73,13 +73,13 @@ export default function VideoSection() {
   return (
     <BackgroundOverlay 
       intensity={overlayIntensity} 
-      className="py-8 sm:py-12 md:py-16"
-      minHeight="fit-content"
+      className="py-0 sm:py-0 md:py-0 flex items-center"
+      minHeight="100vh"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div ref={ref} className={`flex flex-col ${isMobile ? "" : "md:flex-row"} items-center gap-6 sm:gap-8 md:gap-16`}>
+      <div className="w-full px-2 sm:px-4 md:px-8 lg:px-12 xl:px-16 mx-auto">
+        <div ref={ref} className={`flex flex-col ${isMobile ? "" : "md:flex-row"} items-center gap-6 sm:gap-8 md:gap-16 min-h-[calc(100vh-2rem)]`}>
           <motion.div
-            className="w-full md:w-1/2 relative"
+            className="w-full md:w-1/2"
             initial={{ opacity: 0, x: -100, scale: 0.8 }}
             animate={isInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -100, scale: 0.8 }}
             transition={{ 
@@ -89,70 +89,19 @@ export default function VideoSection() {
               damping: 20
             }}
           >
-            <div className="aspect-video rounded-lg overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300 relative">
-              {activeSlide === 0 ? (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <video 
-                    ref={videoRef}
-                    className="max-w-full max-h-full object-contain" 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline
-                    src="/video/video.mp4"
-                    preload="auto"
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <img 
-                    src="/video/2.jpg" 
-                    alt="Product showcase" 
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-              )}
-              
-              {/* Carousel Controls */}
-              <div className="absolute inset-0 flex items-center justify-between px-4">
-                <button
-                  onClick={prevSlide}
-                  className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-                  aria-label="Previous slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-                  aria-label="Next slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Slide Indicators */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                {[0, 1].map((index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      activeSlide === index ? 'bg-white' : 'bg-white/50'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Video Controls - Only show when video is active */}
-            {activeSlide === 0 && (
-              <div className="flex items-center gap-4 mt-4 px-2 w-full">
+            <div className="flex flex-col items-center justify-center w-full">
+              <video 
+                ref={videoRef}
+                className="w-screen h-[70vh] max-h-none max-w-none rounded-2xl object-cover border-8 border-white md:w-auto md:max-h-[70vh] md:max-w-full md:h-auto md:border-none overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300" 
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                src="/video/video.mp4"
+                preload="auto"
+              />
+              {/* Controls */}
+              <div className="flex items-center gap-4 mt-2 px-2 w-full md:w-auto">
                 <button
                   onClick={togglePlay}
                   className="w-12 h-12 flex items-center justify-center rounded-md bg-[#232b32] text-white hover:bg-[#232b32]/90 transition-colors focus:outline-none"
@@ -191,11 +140,11 @@ export default function VideoSection() {
                   {duration ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}` : '0:00'}
                 </span>
               </div>
-            )}
+            </div>
           </motion.div>
 
           <motion.div
-            className="w-full md:w-1/2"
+            className="w-full md:w-1/2 flex flex-col items-center md:items-start md:text-left px-4 md:px-0"
             initial={{ opacity: 0, x: 50, y: 20 }}
             animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: 50, y: 20 }}
             transition={{ 
@@ -219,6 +168,12 @@ export default function VideoSection() {
               The Travhalór gives you the freedom to bring what you need without paying extra fees, letting you travel
               smarter and more economically.
             </p>
+            <button 
+              className="mt-6 px-8 py-3 bg-[#232b32] text-white rounded-lg font-semibold hover:bg-[#232b32]/90 transition-colors transform hover:scale-105 duration-200 shadow-lg"
+              onClick={() => window.location.href = '/preorder'}
+            >
+              Preorder Now
+            </button>
           </motion.div>
         </div>
       </div>

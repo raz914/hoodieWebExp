@@ -32,7 +32,7 @@ export default function ModelLoader() {
         }, 10000) // 10 second timeout
         
         // Preload the model (could be expanded to load multiple models)
-        await useGLTF.preload("/model/hoodieModel.glb")
+        await useGLTF.preload("/model/hoodieModel2.glb")
         
         // If we get here, loading succeeded
         clearTimeout(timeoutId)

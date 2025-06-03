@@ -172,17 +172,17 @@ export default function HeroSection() {
   const [show, setShow] = useState(false)
   
   // Initialize audio
-  useEffect(() => {
-    audioRef.current = new Audio('/sound22.mp3')
-    audioRef.current.volume = 0.5 // Set volume to 50%
+  // useEffect(() => {
+  //   audioRef.current = new Audio('/sound22.mp3')
+  //   audioRef.current.volume = 0.5 // Set volume to 50%
     
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-    }
-  }, [])
+  //   return () => {
+  //     if (audioRef.current) {
+  //       audioRef.current.pause()
+  //       audioRef.current = null
+  //     }
+  //   }
+  // }, [])
   
   // When the main heading is shown, reset Z and start animating
   useEffect(() => {
@@ -190,12 +190,12 @@ export default function HeroSection() {
       setPosition(([x, y]) => [x, y, -5])
       setIsAnimating(true)
       // Play sound when animation starts
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0
-        audioRef.current.play().catch(error => {
-          console.log('Audio playback failed:', error)
-        })
-      }
+      // if (audioRef.current) {
+      //   audioRef.current.currentTime = 0
+      //   audioRef.current.play().catch(error => {
+      //     console.log('Audio playback failed:', error)
+      //   })
+      // }
     }
   }, [show])
 
@@ -242,7 +242,7 @@ export default function HeroSection() {
   }
 
   return (
-    <div ref={containerRef} className="w-full min-h-screen h-full flex flex-col items-center justify-center md:justify-start relative mb-20">
+    <div ref={containerRef} className="w-full min-h-screen h-full flex flex-col items-center justify-center md:justify-start relative mb-0">
       <div className="absolute inset-0 z-0">
         <Canvas camera={{ position: [0, 2, 5], fov: 50 }}>
           <ambientLight intensity={0.5} />

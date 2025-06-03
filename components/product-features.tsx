@@ -15,7 +15,7 @@ const features = [
     id: 1,
     title: "Hidden Compartments",
     description:
-      "Multiple discreet pockets throughout the hoodie allow you to store essentials like phones, passports, and small items that would normally go in your carry-on bag.",
+      "Discreet pockets let you store essentials like phones and passports.",
     hotspotPosition: [-3.3, 1.2, 0.5] as [number, number, number],
     cameraPosition: [1.8, 2, 2.2] as [number, number, number],
     cameraTarget: [0, 0, 0] as [number, number, number],
@@ -24,7 +24,7 @@ const features = [
     id: 2,
     title: "Expandable Storage",
     description:
-      "Specially designed expandable sections can hold clothing items, reducing the need for additional luggage while maintaining a normal appearance.",
+      "Expandable sections hold clothing, reducing the need for extra luggage.",
     hotspotPosition: [0, 0.3, 0] as [number, number, number],
     cameraPosition: [0, 0.3, 1.3] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
@@ -33,7 +33,7 @@ const features = [
     id: 3,
     title: "Comfortable Design",
     description:
-      "Despite its storage capabilities, the hoodie remains comfortable to wear during long flights, with breathable fabric and ergonomic weight distribution.",
+      "Breathable fabric and ergonomic weight for comfort on long flights.",
     hotspotPosition: [-0.6, 1.3, 0.3] as [number, number, number],
     cameraPosition: [1.4, 1.4, 1.5] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
@@ -42,18 +42,9 @@ const features = [
     id: 4,
     title: "Stylish Appearance",
     description:
-      "Looks like a normal hoodie to casual observers, including airline staff, while providing the functionality you need to avoid extra baggage fees.",
+      "Looks like a normal hoodie while hiding its travel features.",
     hotspotPosition: [0.3, 0, 0.5] as [number, number, number],
     cameraPosition: [-1.4, 0.9, 1.5] as [number, number, number],
-    cameraTarget: [0, 0.3, 0] as [number, number, number],
-  },
-  {
-    id: 5,
-    title: "360° View",
-    description:
-      "Explore the hoodie from every angle. Click and drag to rotate the view and see all the innovative features from any perspective.",
-    hotspotPosition: [0, 0.3, 0] as [number, number, number],
-    cameraPosition: [0, 0.3, 1.6] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
   },
 ]
@@ -137,14 +128,7 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
 
   // Reset camera position when switching to orbit mode
   useEffect(() => {
-    if (activeFeature === 4) {
-      camera.position.set(0, 0.3, 2)
-      camera.lookAt(0, 0.3, 0)
-      // Ensure the canvas can receive pointer events
-      gl.domElement.style.pointerEvents = 'auto'
-    } else {
-      gl.domElement.style.pointerEvents = 'none'
-    }
+    gl.domElement.style.pointerEvents = 'none'
   }, [activeFeature, camera, gl])
   
   return (
@@ -159,16 +143,16 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
-      <Environment preset="city" />
+      <Environment files="/potsdamer_platz_1k.hdr" background />
       <OrbitControls 
         enableZoom={false}
         enablePan={false}
-        enableRotate={activeFeature === 4}
+        enableRotate={false}
         minPolarAngle={Math.PI / 4}
         maxPolarAngle={Math.PI * 3/4}
         rotateSpeed={0.5}
         target={[0, 0.3, 0]}
-        makeDefault={activeFeature === 4}
+        makeDefault={false}
         domElement={gl.domElement}
       />
       
@@ -199,23 +183,20 @@ export default function ProductFeatures() {
   // Handle scroll events with debouncing
   useEffect(() => {
     const handleScroll = (e: WheelEvent) => {
-      // Prevent default only if we're not at the boundaries
       const now = Date.now()
       const timeDiff = now - lastScrollTime.current
       
-      // Reduce debounce time from 800ms to 300ms for more responsive scrolling
-      // if (timeDiff < 300 || isAnimating) return
-      
-      // Check boundaries
-      if (activeFeature === features.length - 1 && e.deltaY > 0) {
-        // At last feature, scrolling down - allow normal scroll
-        return
-      }
+      // Check if we're at the boundaries
       if (activeFeature === 0 && e.deltaY < 0) {
         // At first feature, scrolling up - allow normal scroll
-        return
+        return true
+      }
+      if (activeFeature === features.length - 1 && e.deltaY > 0) {
+        // At last feature, scrolling down - allow normal scroll
+        return true
       }
       
+      // If we're not at boundaries, handle feature navigation
       e.preventDefault()
       lastScrollTime.current = now
       
@@ -317,15 +298,16 @@ export default function ProductFeatures() {
         ref={sectionRef}
         style={{
           width: '100vw',
-          height: '100vh',
+          height: '85vh',
           position: 'relative',
-          overflow: 'hidden',
+          overflow: 'visible',
           margin: 0,
           padding: 0,
           background: 'transparent',
-          touchAction: 'none', // Prevent default touch actions
-          borderRadius: '5rem', // Add rounded corners
+          touchAction: 'pan-y',
+          borderRadius: '2rem',
         }}
+        className="md:h-screen"
       >
         {/* <div className="absolute top-8 left-8 z-20">
           <h2 className="text-3xl md:text-5xl font-bold text-black">Product Features</h2>
@@ -338,49 +320,62 @@ export default function ProductFeatures() {
               top: 0, 
               left: 0, 
               width: '100vw', 
-              height: 'calc(100vh - 2rem)', 
-              margin: '1rem 0', 
+              height: 'calc(100% - 1rem)',
+              margin: '0.5rem 0',
               zIndex: 1,
               pointerEvents: 'auto',
-              borderRadius: '2rem', // Add rounded corners to the canvas container
-              overflow: 'hidden', // Ensure content doesn't overflow rounded corners
+              borderRadius: '2rem',
+              overflow: 'hidden',
             }}
           >
             <Canvas camera={{ position: features[activeFeature].cameraPosition, fov: 50 }}>
               <Scene activeFeature={activeFeature} onAnimationComplete={handleAnimationComplete} />
             </Canvas>
-          </div>
 
-          {/* Feature indicators */}
-          <div className="absolute bottom-20 left-8 z-20">
-            <div className="flex items-center space-x-4 mb-4">
-              <span className="text-5xl font-bold text-black">
-                {String(activeFeature + 1).padStart(2, "0")}
-              </span>
-              <span className="text-xl text-gray-600">
-                / {String(features.length).padStart(2, "0")}
-              </span>
-            </div>
-            
-            {/* Progress dots */}
-            <div className="flex items-center space-x-2">
-              {features.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setActiveFeature(index)
-                    if (index > 0) {
-                      setIsInfoPanelOpen(true)
-                    } else {
-                      setIsInfoPanelOpen(false)
-                    }
-                  }}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    activeFeature === index ? "bg-black w-8" : "bg-gray-300 w-2"
-                  }`}
-                  aria-label={`Go to feature ${index + 1}`}
+            {/* Info Panel */}
+            {activeFeature < 4 ? (
+              <div
+                className="info-panel-wrapper"
+                style={{ 
+                  position: 'absolute', 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  zIndex: 10,
+                  padding: '1rem',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                }}
+              >
+                <InfoPanel
+                  isOpen={true}
+                  title={features[activeFeature].title}
+                  description={features[activeFeature].description}
+                  onClose={() => setIsInfoPanelOpen(false)}
                 />
-              ))}
+              </div>
+            ) : null}
+
+            {/* Feature indicators */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+              <div className="flex items-center space-x-2">
+                {features.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setActiveFeature(index)
+                      if (index > 0) {
+                        setIsInfoPanelOpen(true)
+                      } else {
+                        setIsInfoPanelOpen(false)
+                      }
+                    }}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeFeature === index ? "bg-white w-8" : "bg-gray-400 w-2"
+                    }`}
+                    aria-label={`Go to feature ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
@@ -406,61 +401,6 @@ export default function ProductFeatures() {
             </motion.div>
           )}
         </div>
-
-        {/* Info Panel or 360 badge */}
-        {activeFeature < 4 ? (
-          <div
-            className="info-panel-wrapper"
-            style={{ position: 'absolute', top: 32, right: 32, left: 'auto', bottom: 'auto', zIndex: 10, transform: 'none' }}
-          >
-            <InfoPanel
-              isOpen={true}
-              title={features[activeFeature].title}
-              description={features[activeFeature].description}
-              onClose={() => setIsInfoPanelOpen(false)}
-            />
-            <style>{`
-              @media (max-width: 640px) {
-                .info-panel-wrapper {
-                  top: 48vh !important;
-                  bottom: 2vh !important;
-                  left: 55% !important;
-                  right: auto !important;
-                  transform: translateX(-50%) !important;
-                  width: 92vw;
-                  max-width: 360px;
-                  display: flex;
-                  justify-content: center;
-                  align-items: flex-end;
-                  z-index: 10;
-                  padding-bottom: 8px;
-                }
-              }
-              @media (max-width: 400px) {
-                .info-panel-wrapper {
-                  width: 98vw;
-                  max-width: 98vw;
-                  font-size: 0.95rem;
-                }
-              }
-            `}</style>
-          </div>
-        ) : (
-          <div style={{ position: 'absolute', bottom: 80, right: 32, zIndex: 10 }}>
-            <div style={{
-              background: 'rgba(0,0,0,0.7)',
-              color: 'white',
-              borderRadius: '1rem',
-              padding: '0.5rem 1.25rem',
-              fontWeight: 600,
-              fontSize: '1.1rem',
-              letterSpacing: '0.05em',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            }}>
-              360° View
-            </div>
-          </div>
-        )}
       </div>
     </>
   )

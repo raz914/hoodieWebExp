@@ -12,29 +12,33 @@ interface InfoPanelProps {
 }
 
 export default function InfoPanel({ isOpen, title, description, onClose }: InfoPanelProps) {
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (panelRef.current) {
-      if (isOpen) {
-        panelRef.current.style.right = '0'
-      } else {
-        panelRef.current.style.right = '-400px'
-      }
-    }
-  }, [isOpen])
+  if (!isOpen) return null;
 
   return (
     <div
-      ref={panelRef}
-      className="info-panel fixed top-0 right-[-300px] w-[260px] h-full transition-all duration-500 ease-in-out z-50 overflow-auto bg-transparent shadow-none backdrop-blur-none"
+      className="info-panel"
+      style={{
+        position: 'absolute',
+        left: '50%',
+        bottom: '2.5rem', // above the feature dots
+        transform: 'translateX(-50%)',
+        zIndex: 20,
+        maxWidth: '90vw',
+        width: '340px',
+        background: 'rgba(255,255,255,0.85)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: '1.25rem',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+        padding: '1.25rem 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+      }}
     >
-      <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg m-4 mt-24">
-        <h2 className="text-2xl font-bold text-black mb-2 mt-2">{title}</h2>
-        <p className="text-base text-black leading-relaxed">
-          {description}
-        </p>
-      </div>
+      <h2 className="text-2xl font-bold text-black mb-2 mt-1" style={{color:'#2d174d'}}>{title}</h2>
+      <p className="text-base text-black leading-relaxed">
+        {description}
+      </p>
     </div>
   )
 }
