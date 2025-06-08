@@ -10,12 +10,14 @@ interface ProductModelProps {
   rotation?: [number, number, number]
 }
 
+const MODEL_URL = '/model/HoodieModel4.glb';
+
 // Preload model outside the component
-useGLTF.preload("/model/HoodieModel4.glb")
+useGLTF.preload(MODEL_URL)
 
 export default function ProductModel({ position = [0, 0, 0], scale = 1, rotation = [0, 0, 0] }: ProductModelProps) {
   const meshRef = useRef<THREE.Group>(null)
-  const gltf = useGLTF("/model/HoodieModel4.glb")
+  const gltf = useGLTF(MODEL_URL)
   const scene = useMemo(() => gltf.scene?.clone?.() ?? null, [gltf.scene])
 
   if (!scene) {

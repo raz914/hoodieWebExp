@@ -248,7 +248,7 @@ export default function HeroSection() {
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
           <AirplaneModel position={position} rotation={rotation} scale={scale} />
-          <OrbitControls enableZoom={false} enablePan={false} />
+          <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
           <Environment preset="city" />
         </Canvas>
       </div>

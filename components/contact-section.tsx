@@ -5,6 +5,9 @@ import { motion, useInView } from "framer-motion"
 import BackgroundOverlay from "./background-overlay"
 import { useOverlay } from "@/contexts/overlay-context"
 import { useMobile } from "@/hooks/use-mobile"
+import { Canvas } from "@react-three/fiber"
+import { OrbitControls, Environment } from "@react-three/drei"
+import ProductModel from "./product-model"
 
 export default function ContactSection() {
   const ref = useRef(null)
@@ -13,20 +16,20 @@ export default function ContactSection() {
   const isMobile = useMobile()
 
   return (
-    <div className="w-full min-h-screen flex flex-col md:flex-row">
+    <div className="w-full min-h-[95vh] flex flex-col md:flex-row">
       {/* Left Side - Dark */}
-      <div className="flex-1 basis-1/2 flex flex-col justify-center items-start bg-black text-white p-6 sm:p-8 md:p-16 relative">
+      <div className="flex-1 basis-1/2 flex flex-col justify-center items-center bg-black text-white p-6 sm:p-8 md:p-16 relative">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, x: -50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
-          className="flex flex-col justify-center h-full text-white"
+          className="flex flex-col justify-center items-center h-full text-white text-center"
         >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 md:mb-6 tracking-wider text-white">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl mb-4 md:mb-6 tracking-wider text-white font-['Outfit']">
             VHALÓR
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-8 md:mb-12 font-light max-w-md text-white">
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 md:mb-12 font-light max-w-md text-gray-200">
             Travel smart. Travel Light. Travel with Vhalór.
           </p>
           
@@ -57,35 +60,26 @@ export default function ContactSection() {
       </div>
 
       {/* Right Side - Light */}
-      <div className="flex-1 basis-1/2 flex flex-col justify-center items-start bg-[#e6e6e6] text-black p-6 sm:p-8 md:p-16">
+      <div className="flex-1 basis-1/2 flex flex-col justify-center items-start bg-black text-black p-6 sm:p-8 md:p-16">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-md w-full"
+          className="w-full max-w-md aspect-square mx-auto"
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-black">Contact Details</h2>
-          
-          <div className="space-y-6 md:space-y-8 text-base md:text-lg">
-            <div>
-              <div className="font-semibold text-black mb-1 md:mb-2">Email</div>
-              <div className="text-gray-700">info@vhalor.com</div>
-            </div>
-            
-            <div>
-              <div className="font-semibold text-black mb-1 md:mb-2">Phone</div>
-              <div className="text-gray-700">+1 (555) 123-4567</div>
-            </div>
-            
-            <div>
-              <div className="font-semibold text-black mb-1 md:mb-2">Address</div>
-              <div className="text-gray-700 leading-relaxed">
-                123 Travel Street<br />
-                New York, NY 10001<br />
-                United States
-              </div>
-            </div>
-          </div>
+          <Canvas camera={{ position: [0, 0, 2], fov: 50 }} style={{ background: '#fff' }}>
+            <ambientLight intensity={0.5} />
+            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+            <pointLight position={[-10, -10, -10]} />
+            <ProductModel position={[0, 0, 0]} scale={1.2} rotation={[0, 0, 0]} />
+            <OrbitControls 
+              enablePan={false}
+              minPolarAngle={Math.PI / 4}
+              maxPolarAngle={Math.PI * 3/4}
+              rotateSpeed={0.5}
+            />
+            <Environment preset="city" />
+          </Canvas>
         </motion.div>
       </div>
     </div>

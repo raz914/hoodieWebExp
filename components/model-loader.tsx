@@ -11,6 +11,9 @@ declare global {
   }
 }
 
+const MODEL_CACHE_NAME = 'hoodie-model-cache-v1';
+const MODEL_URL = '/model/HoodieModel4.glb';
+
 // This component handles preloading 3D models during the loading screen
 export default function ModelLoader() {
   const [modelsLoaded, setModelsLoaded] = useState(false)
@@ -30,9 +33,23 @@ export default function ModelLoader() {
           setLoadingError(true)
           setModelsLoaded(true) // Still mark as "loaded" so app can continue
         }, 10000) // 10 second timeout
-        
-        // Preload the model (could be expanded to load multiple models)
-        await useGLTF.preload("/model/hoodieModel2.glb")
+
+        // Check if model is in cache
+        const cache = await caches.open(MODEL_CACHE_NAME);
+        const cachedResponse = await cache.match(MODEL_URL);
+
+        if (cachedResponse) {
+          console.log("Loading model from cache");
+          // If cached, use the cached version
+          await useGLTF.preload(MODEL_URL, true); // true to use cached version
+        } else {
+          console.log("Loading model from network and caching");
+          // If not cached, load from network and cache it
+          await useGLTF.preload(MODEL_URL);
+          // Cache the model
+          const response = await fetch(MODEL_URL);
+          await cache.put(MODEL_URL, response.clone());
+        }
         
         // If we get here, loading succeeded
         clearTimeout(timeoutId)

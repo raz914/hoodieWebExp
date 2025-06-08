@@ -91,7 +91,7 @@ p, li, a {
 /* Adjust padding for mobile devices */
 @media (max-width: 640px) {
   .snap-section {
-    padding: 1rem;
+    /* padding: 1rem; */
   }
 }
 
@@ -152,7 +152,7 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.1rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -250,6 +250,7 @@ body {
 }
 
 .night-section {
+  /* background: black; */
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -269,7 +270,7 @@ body {
 @media (max-width: 480px) {
   /* Extra small devices */
   .snap-section {
-    padding: 0.75rem;
+    /* padding: 0.75rem; */
   }
   
   h1 {
@@ -297,7 +298,7 @@ body {
 /* Small devices */
 @media (min-width: 481px) and (max-width: 767px) {
   .snap-section {
-    padding: 1rem;
+    /* padding: 1rem; */
   }
 }
 

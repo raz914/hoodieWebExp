@@ -168,8 +168,12 @@ export default function VideoSection() {
               The Travhalór gives you the freedom to bring what you need without paying extra fees, letting you travel
               smarter and more economically.
             </p>
+            <div className="mt-6 mb-4">
+              <p className="text-2xl font-bold text-[#232b32]">$129.99</p>
+              <p className="text-sm text-gray-600 mt-1">First shipment: June 2024</p>
+            </div>
             <button 
-              className="mt-6 px-8 py-3 bg-[#232b32] text-white rounded-lg font-semibold hover:bg-[#232b32]/90 transition-colors transform hover:scale-105 duration-200 shadow-lg"
+              className="mt-2 px-8 py-3 bg-[#232b32] text-white rounded-lg font-semibold hover:bg-[#232b32]/90 transition-colors transform hover:scale-105 duration-200 shadow-lg"
               onClick={() => window.location.href = '/preorder'}
             >
               Preorder Now

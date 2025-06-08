@@ -13,39 +13,39 @@ import * as THREE from "three"
 const features = [
   {
     id: 1,
-    title: "Hidden Compartments",
+    title: "Lightweight Durability & Waterproof",
     description:
-      "Discreet pockets let you store essentials like phones and passports.",
-    hotspotPosition: [-3.3, 1.2, 0.5] as [number, number, number],
-    cameraPosition: [1.8, 2, 2.2] as [number, number, number],
-    cameraTarget: [0, 0, 0] as [number, number, number],
+      "Premium materials with exceptional durability and water resistance.",
+    hotspotPosition: [0.3, 0, 0.5] as [number, number, number],
+    cameraPosition: [-1.4, 0.9, 1.5] as [number, number, number],
+    cameraTarget: [0, 0.3, 0] as [number, number, number],
   },
   {
     id: 2,
-    title: "Expandable Storage",
+    title: "Smart Storage",
     description:
-      "Expandable sections hold clothing, reducing the need for extra luggage.",
+      "Intelligent compartments maximize space while keeping belongings secure.",
     hotspotPosition: [0, 0.3, 0] as [number, number, number],
-    cameraPosition: [0, 0.3, 1.3] as [number, number, number],
+    cameraPosition: [0, 0.3, 2.0] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
   },
   {
     id: 3,
-    title: "Comfortable Design",
+    title: "Convertible to Bag",
     description:
-      "Breathable fabric and ergonomic weight for comfort on long flights.",
+      "Transforms from hoodie to travel bag, adapting to your needs.",
     hotspotPosition: [-0.6, 1.3, 0.3] as [number, number, number],
     cameraPosition: [1.4, 1.4, 1.5] as [number, number, number],
     cameraTarget: [0, 0.3, 0] as [number, number, number],
   },
   {
     id: 4,
-    title: "Stylish Appearance",
+    title: "Return on Investment",
     description:
-      "Looks like a normal hoodie while hiding its travel features.",
-    hotspotPosition: [0.3, 0, 0.5] as [number, number, number],
-    cameraPosition: [-1.4, 0.9, 1.5] as [number, number, number],
-    cameraTarget: [0, 0.3, 0] as [number, number, number],
+      "Pays for itself by eliminating multiple bags and luggage fees.",
+      hotspotPosition: [-0.3, 1.5, 0.3] as [number, number, number],
+      cameraPosition: [0.5, 1.6, 1.5] as [number, number, number],
+      cameraTarget: [0, 0.5, 0] as [number, number, number],
   },
 ]
 
@@ -106,9 +106,30 @@ function CameraController({ position, target, onAnimationComplete }: CameraContr
   return null
 }
 
+function RotatingBucks({ model }: { model: any }) {
+  const meshRef = useRef<THREE.Group>(null)
+  
+  useFrame((state, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.5 // Adjust rotation speed here
+    }
+  })
+  
+  return (
+    <primitive 
+      ref={meshRef}
+      object={model.scene} 
+      scale={1} 
+      position={[0, 1.25, 0]} 
+      rotation={[0, 0, 0]}
+    />
+  )
+}
+
 function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, onAnimationComplete: () => void }) {
   const feature = features[activeFeature]
   const model = useGLTF("/stage.glb")
+  const bucksModel = useGLTF("/bucks.glb")
   const [bakedMap] = useLoader(THREE.TextureLoader, ["/stage_baked.jpg"])
   const { camera, gl } = useThree()
   
@@ -157,14 +178,19 @@ function Scene({ activeFeature, onAnimationComplete }: { activeFeature: number, 
       />
       
       {/* Stage Model */}
-      <primitive object={model.scene} />
+      <primitive object={model.scene} scale={0.17} position={[0, -0.2, 0]} />
       
       {/* Product Model */}
       <ProductModel
-        position={[0, 0.4, 0]}
+        position={[0, 0.5, 0]}
         scale={1.2}
         rotation={[0, 0, 0]}
       />
+      
+      {/* Bucks Model - Only show for ROI feature */}
+      {activeFeature === 3 && (
+        <RotatingBucks model={bucksModel} />
+      )}
     </>
   )
 }
@@ -173,88 +199,55 @@ export default function ProductFeatures() {
   const [activeFeature, setActiveFeature] = useState(0)
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [showSwipeHint, setShowSwipeHint] = useState(false)
+  const [hasSwiped, setHasSwiped] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const isMobile = useMobile()
-  const isInView = useInView(containerRef, { once: false, amount: 0.3 })
-  const lastScrollTime = useRef(0)
-  const scrollTimeout = useRef<NodeJS.Timeout>()
+  const lastTouchX = useRef(0)
+  const isInView = useInView(sectionRef, { once: false, amount: 0.5 })
 
-  // Handle scroll events with debouncing
+  // Show and auto-hide swipe hint when section is in view
   useEffect(() => {
-    const handleScroll = (e: WheelEvent) => {
-      const now = Date.now()
-      const timeDiff = now - lastScrollTime.current
-      
-      // Check if we're at the boundaries
-      if (activeFeature === 0 && e.deltaY < 0) {
-        // At first feature, scrolling up - allow normal scroll
-        return true
-      }
-      if (activeFeature === features.length - 1 && e.deltaY > 0) {
-        // At last feature, scrolling down - allow normal scroll
-        return true
-      }
-      
-      // If we're not at boundaries, handle feature navigation
-      e.preventDefault()
-      lastScrollTime.current = now
-      
-      // Clear any existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current)
-      }
-      
-      // Set animating state
-      setIsAnimating(true)
-      
-      // Handle scroll with reduced animation time
-      if (e.deltaY > 0) {
-        // Scroll down
-        const nextIndex = Math.min(activeFeature + 1, features.length - 1)
-        setActiveFeature(nextIndex)
-        
-        // Show info panel immediately
-        setIsInfoPanelOpen(true)
-      } else if (e.deltaY < 0) {
-        // Scroll up
-        const prevIndex = Math.max(activeFeature - 1, 0)
-        setActiveFeature(prevIndex)
-        
-        // Close info panel immediately
-        setIsInfoPanelOpen(false)
-      }
+    if (isMobile && isInView && !hasSwiped) {
+      setShowSwipeHint(true)
+      const timer = setTimeout(() => {
+        setShowSwipeHint(false)
+      }, 3000)
+      return () => clearTimeout(timer)
     }
+  }, [isMobile, isInView, hasSwiped])
 
-    const section = sectionRef.current
-    if (section) {
-      section.addEventListener('wheel', handleScroll, { passive: false })
-      return () => section.removeEventListener('wheel', handleScroll)
-    }
-  }, [activeFeature, isAnimating])
-
-  // Handle touch events for mobile
+  // Handle touch events for mobile swipe
   useEffect(() => {
-    if (!isMobile) return
-
+    let touchStartX = 0
     let touchStartY = 0
+    let touchEndX = 0
     let touchEndY = 0
 
     const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX
       touchStartY = e.touches[0].clientY
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0].clientX
       touchEndY = e.changedTouches[0].clientY
-      const diff = touchStartY - touchEndY
       
-      if (Math.abs(diff) > 50) { // Minimum swipe distance
-        if (diff > 0 && activeFeature < features.length - 1) {
-          // Swipe up
+      const diffX = touchStartX - touchEndX
+      const diffY = touchStartY - touchEndY
+      
+      // Only handle horizontal swipes if they're more horizontal than vertical
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+        e.preventDefault() // Only prevent default for horizontal swipes
+        setHasSwiped(true)
+        setShowSwipeHint(false)
+        if (diffX > 0 && activeFeature < features.length - 1) {
+          // Swipe left
           setActiveFeature(prev => prev + 1)
           setIsInfoPanelOpen(true)
-        } else if (diff < 0 && activeFeature > 0) {
-          // Swipe down
+        } else if (diffX < 0 && activeFeature > 0) {
+          // Swipe right
           setIsInfoPanelOpen(false)
           setActiveFeature(prev => prev - 1)
         }
@@ -263,14 +256,14 @@ export default function ProductFeatures() {
 
     const section = sectionRef.current
     if (section) {
-      section.addEventListener('touchstart', handleTouchStart)
-      section.addEventListener('touchend', handleTouchEnd)
+      section.addEventListener('touchstart', handleTouchStart, { passive: true })
+      section.addEventListener('touchend', handleTouchEnd, { passive: false })
       return () => {
         section.removeEventListener('touchstart', handleTouchStart)
         section.removeEventListener('touchend', handleTouchEnd)
       }
     }
-  }, [activeFeature, isMobile])
+  }, [activeFeature])
 
   // Handle animation complete
   const handleAnimationComplete = () => {
@@ -283,6 +276,20 @@ export default function ProductFeatures() {
       setIsInfoPanelOpen(true)
     }
   }, [activeFeature])
+
+  const handlePrevFeature = () => {
+    if (activeFeature > 0) {
+      setActiveFeature(prev => prev - 1)
+      setIsInfoPanelOpen(false)
+    }
+  }
+
+  const handleNextFeature = () => {
+    if (activeFeature < features.length - 1) {
+      setActiveFeature(prev => prev + 1)
+      setIsInfoPanelOpen(true)
+    }
+  }
 
   return (
     <>
@@ -304,15 +311,11 @@ export default function ProductFeatures() {
           margin: 0,
           padding: 0,
           background: 'transparent',
-          touchAction: 'pan-y',
+          touchAction: 'pan-y', // Allow vertical scrolling
           borderRadius: '2rem',
         }}
         className="md:h-screen"
       >
-        {/* <div className="absolute top-8 left-8 z-20">
-          <h2 className="text-3xl md:text-5xl font-bold text-black">Product Features</h2>
-        </div> */}
-
         <div ref={containerRef} className="w-full h-full">
           <div 
             style={{ 
@@ -331,6 +334,40 @@ export default function ProductFeatures() {
             <Canvas camera={{ position: features[activeFeature].cameraPosition, fov: 50 }}>
               <Scene activeFeature={activeFeature} onAnimationComplete={handleAnimationComplete} />
             </Canvas>
+
+            {/* Navigation Arrows - Only show on desktop */}
+            {!isMobile && (
+              <>
+                <div className="absolute inset-y-0 left-0 flex items-center z-20">
+                  <button
+                    onClick={handlePrevFeature}
+                    disabled={activeFeature === 0}
+                    className={`p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-all ${
+                      activeFeature === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    style={{ marginLeft: '1rem' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="absolute inset-y-0 right-0 flex items-center z-20">
+                  <button
+                    onClick={handleNextFeature}
+                    disabled={activeFeature === features.length - 1}
+                    className={`p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-all ${
+                      activeFeature === features.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    style={{ marginRight: '1rem' }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                </div>
+              </>
+            )}
 
             {/* Info Panel */}
             {activeFeature < 4 ? (
@@ -379,22 +416,23 @@ export default function ProductFeatures() {
             </div>
           </div>
 
-          {/* Scroll hint */}
-          {activeFeature === 0 && (
+          {/* Mobile Swipe Hint */}
+          {isMobile && showSwipeHint && (
             <motion.div 
-              className="absolute bottom-8 right-8 z-20"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.5 }}
+              className="fixed top-1/2 left-[30%] -translate-x-1/2 -translate-y-1/2 z-20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
             >
-              <div className="text-sm text-gray-600 flex items-center gap-2">
-                <span>Scroll to explore</span>
+              <div className="text-sm text-white flex items-center gap-2 bg-black/50 px-6 py-3 rounded-full backdrop-blur-sm whitespace-nowrap">
+                <span>Swipe right to explore</span>
                 <motion.div
-                  animate={{ y: [0, 5, 0] }}
+                  animate={{ x: [0, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 4v8m0 0l-3-3m3 3l3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 8h8m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </motion.div>
               </div>
